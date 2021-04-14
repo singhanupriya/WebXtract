@@ -65,39 +65,30 @@ framework.hears(/help|what can i (do|say)|what (can|do) you do/i, function (bot,
 
 /* On mention with command
 ex User enters @botname framework, the bot will write back in markdown
-
+*/
 framework.hears('framework', function (bot) {
   console.log("framework command received");
   responded = true;
   bot.say("markdown", "The primary purpose for the [webex-node-bot-framework](https://github.com/jpjpjp/webex-node-bot-framework) was to create a framework based on the [webex-jssdk](https://webex.github.io/webex-js-sdk) which continues to be supported as new features and functionality are added to Webex. This version of the proejct was designed with two themes in mind: \n\n\n * Mimimize Webex API Calls. The original flint could be quite slow as it attempted to provide bot developers rich details about the space, membership, message and message author. This version eliminates some of that data in the interests of efficiency, (but provides convenience methods to enable bot developers to get this information if it is required)\n * Leverage native Webex data types. The original flint would copy details from the webex objects such as message and person into various flint objects. This version simply attaches the native Webex objects. This increases the framework's efficiency and makes it future proof as new attributes are added to the various webex DTOs ");
 });
 
-*/
-
 /* On mention with command, using other trigger data, can use lite markdown formatting
 ex User enters @botname 'info' phrase, the bot will provide personal details
 */
-
-framework.hears('info', function (bot) {
+framework.hears('info', function (bot, trigger) {
   console.log("info command received");
   responded = true;
-  
-  bot.say("markdown", 'These are my functionalities:', '\n\n ' +
-    
-    '1. **Sr number textbox** (Enter the SR related to the query (optional) !) \n' +
-	'2. **Post query** (Enter the query (required)!) \n' +
-    '3. **Post to space** (Post the query to the space) \n'+
-	'4. **Post to space and SR** (Post the query to the space and the SR) \n'+
-	'5. **Post the thread to SR** (Send the complete response thread to the SR) \n'
-	
-	
-	);
+  //the "trigger" parameter gives you access to data about the user who entered the command
+  let personAvatar = trigger.person.avatar;
+  let personEmail = trigger.person.emails[0];
+  let personDisplayName = trigger.person.displayName;
+  let outputString = `Here is your personal information: \n\n\n **Name:** ${personDisplayName}  \n\n\n **Email:** ${personEmail} \n\n\n **Avatar URL:** ${personAvatar}`;
+  bot.say("markdown", outputString);
 });
-
 
 /* On mention with bot data 
 ex User enters @botname 'space' phrase, the bot will provide details about that particular space
-
+*/
 framework.hears('space', function (bot) {
   console.log("space. the final frontier");
   responded = true;
@@ -112,13 +103,12 @@ framework.hears('space', function (bot) {
     .catch((e) => console.error(`bot.say failed: ${e.message}`));
 
 });
-*/
 
 /* 
    Say hi to every member in the space
    This demonstrates how developers can access the webex
    sdk to call any Webex API.  API Doc: https://webex.github.io/webex-js-sdk/api/
-
+*/
 framework.hears("say hi to everyone", function (bot) {
   console.log("say hi to everyone.  Its a party");
   responded = true;
@@ -140,8 +130,6 @@ framework.hears("say hi to everyone", function (bot) {
     });
 });
 
-*/
-
 // Buttons & Cards data
 let cardJSON =
 {
@@ -149,143 +137,56 @@ let cardJSON =
   type: 'AdaptiveCard',
   version: '1.0',
   body:
-    [
-	{
-            "type": "ColumnSet",
-            "columns": [
-                {
-                    "type": "Column",
-                    "items": [
-                        {
-                            "type": "Image",
-                            "style": "Person",
-                            "url": "https://developer.webex.com/images/webex-teams-logo.png",
-                            "size": "Medium",
-                            "height": "50px"
-                        }
-                    ],
-                    "width": "auto"
-                },
-                {
-                    "type": "Column",
-                    "items": [
-                        {
-                            "type": "TextBlock",
-                            "text": "Cisco Webex Teams",
-                            "weight": "Lighter",
-                            "color": "Accent"
-                        },
-                        {
-                            "type": "TextBlock",
-                            "weight": "Bolder",
-                            "text": "Onis Card Query",
-                            "horizontalAlignment": "Left",
-                            "wrap": true,
-                            "color": "Light",
-                            "size": "Large",
-                            "spacing": "Small"
-                        }
-                    ],
-                    "width": "stretch"
-                }
-            ]
-        },
-        {
-            "type": "TextBlock",
-            "text": "Here comes Onis to the rescue, please paste your query in the box.",
-            "wrap": true,
-            "separator": true,
-            "spacing": "Medium"
-        },
-        {
-            "type": "Input.Text",
-            "placeholder": "SR Number",
-            "maxLength": 9,
-            "id": "sr"
-        },
-        {
-            "type": "Input.Text",
-            "placeholder": "Post query",
-            "id": "query",
-            "isMultiline": true,
-            "spacing": "Large"
-        },
-		{
-            "type": "TextBlock",
-            "text": "Please select one option from below.",
-            "wrap": true,
-            "separator": true,
-            "spacing": "Medium"
-        },
-		
-        {
-            "type": "ColumnSet",
-            "columns": [
-                {
-                    "type": "Column",
-                    "width": "auto",
-                    "items": [
-                        {
-                            "type": "Input.ChoiceSet",
-                            "placeholder": "Select",
-                            "choices": [
-                                {
-                                    "title": "Post to Space",
-                                    "value": "space_only"
-                                },
-                                {
-                                    "title": "Post to Space and SR",
-                                    "value": "space_n_sr"
-                                },
-								{
-                                    "title": "Post the Thread to SR",
-                                    "value": "thread_to_sr"
-                                }
-                            ],
-                            "style": "expanded",
-                            "spacing": "Medium",
-                            "separator": true,
-                            "id": "choice"
-                        }
-                    ],
-                    "spacing": "Small"
-                }
-            ]
-        },
-        {
-            "type": "ActionSet",
-            "actions": [
-                {
-                    "type": "Action.Submit",
-                    "title": "Submit",
-                    "data": {
-                        "subscribe": true
-                    },
-                    "style": "positive",
-                    "id": "forward"
-                }
-            ],
-            "horizontalAlignment": "Left",
-            "spacing": "None"
-        }
-	]
+    [{
+      type: 'ColumnSet',
+      columns:
+        [{
+          type: 'Column',
+          width: '5',
+          items:
+            [{
+              type: 'Image',
+              url: 'Your avatar appears here!',
+              size: 'large',
+              horizontalAlignment: "Center",
+              style: 'person'
+            },
+            {
+              type: 'TextBlock',
+              text: 'Your name will be here!',
+              size: 'medium',
+              horizontalAlignment: "Center",
+              weight: 'Bolder'
+            },
+            {
+              type: 'TextBlock',
+              text: 'And your email goes here!',
+              size: 'small',
+              horizontalAlignment: "Center",
+              isSubtle: true,
+              wrap: false
+            }]
+        }]
+    }]
 };
 
 /* On mention with card example
 ex User enters @botname 'card me' phrase, the bot will produce a personalized card - https://developer.webex.com/docs/api/guides/cards
 */
-framework.hears('card', function (bot, trigger) {
+framework.hears('card me', function (bot, trigger) {
   console.log("someone asked for a card");
   responded = true;
-  
-  bot.say(`Hello ${trigger.person.displayName}.`)
-  
+  let avatar = trigger.person.avatar;
+
+  cardJSON.body[0].columns[0].items[0].url = (avatar) ? avatar : `${config.webhookUrl}/missing-avatar.jpg`;
+  cardJSON.body[0].columns[0].items[1].text = trigger.person.displayName;
+  cardJSON.body[0].columns[0].items[2].text = trigger.person.emails[0];
   bot.sendCard(cardJSON, 'This is customizable fallback text for clients that do not support buttons & cards');
 });
 
 /* On mention reply example
 ex User enters @botname 'reply' phrase, the bot will post a threaded reply
-
+*/
 framework.hears('reply', function (bot, trigger) {
   console.log("someone asked for a reply.  We will give them two.");
   responded = true;
@@ -298,7 +199,6 @@ framework.hears('reply', function (bot, trigger) {
   };
   bot.reply(trigger.message, msg_attach);
 });
-*/
 
 /* On mention with unexpected bot command
    Its a good practice is to gracefully handle unexpected input
@@ -317,10 +217,13 @@ framework.hears('reply', function (bot, trigger) {
 
 function sendHelp(bot) {
   bot.say("markdown", 'These are the commands I can respond to:', '\n\n ' +
-    
-    '1. **info** (Get to know me!) \n' +
-	'2. **card** (To ask a query on the space!) \n' +
-    '3. **help** (what you are reading now)');
+    '1. **framework**   (learn more about the Webex Bot Framework) \n' +
+    '2. **info**  (get your personal details) \n' +
+    '3. **space**  (get details about this space) \n' +
+    '4. **card me** (a cool card!) \n' +
+    '5. **say hi to everyone** (everyone gets a greeting using a call to the Webex SDK) \n' +
+    '6. **reply** (have bot reply to your message) \n' +
+    '7. **help** (what you are reading now)');
 }
 
 
